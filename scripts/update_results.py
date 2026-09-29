@@ -1,40 +1,73 @@
 import json, urllib.request, pathlib, datetime
 
-BASE="https://feed.nascar.com/api"
 YEAR=datetime.datetime.now().year
+SERIES=1
+CACHE="https://cf.nascar.com/cacher"
+
 def get(url):
-    req=urllib.request.Request(url,headers={"User-Agent":"Sunday-Picks/1.0","Accept":"application/json"})
+    req=urllib.request.Request(url,headers={"User-Agent":"Mozilla/5.0 Sunday-Picks/1.0","Accept":"application/json"})
     with urllib.request.urlopen(req,timeout=30) as r:
         return json.load(r)
 
-races=get(f"{BASE}/racelist?startseason={YEAR}&endseason={YEAR}&series_id=1&v=4")
-if isinstance(races,dict):
-    for key in ("races","race_list","RaceInfo"):
-        if key in races:
-            races=races[key]; break
-cup=[r for r in races if int(r.get("series_id",1))==1 and int(r.get("race_type_id",1))==1]
-cup.sort(key=lambda r:r.get("race_date") or "")
-eligible=[r for r in cup if int(r.get("actual_laps") or 0)>0]
-out={"season":YEAR,"series_id":1,"updated_at":datetime.datetime.now(datetime.timezone.utc).isoformat(),"schedule":[{"race_id":r.get("race_id"),"name":r.get("race_name"),"track":r.get("track_name"),"date":(r.get("race_date") or "")[:10]} for r in cup],"races":[]}
-for info in eligible:
-    rid=info["race_id"]
+def first_list(obj):
+    if isinstance(obj,list): return obj
+    if isinstance(obj,dict):
+        for k in ("races","race_list","RaceInfo","data"):
+            if isinstance(obj.get(k),list): return obj[k]
+    return []
+
+# NASCAR's CDN cache is the source used by its public race-data surfaces.
+race_blob=get(f"{CACHE}/{YEAR}/{SERIES}/race_list_basic.json")
+races=first_list(race_blob)
+cup=[]
+for r in races:
     try:
-        race=get(f"{BASE}/races/{rid}?v=4")
-    except Exception as e:
-        print("skip",rid,e); continue
-    if isinstance(race,list): race=race[0] if race else {}
-    results=race.get("results") or race.get("race_results") or []
-    # Only publish final post-inspection data.
-    if not race.get("inspection_complete",False):
+        if int(r.get("series_id",SERIES))!=SERIES: continue
+        if int(r.get("race_type_id",1))!=1: continue
+    except Exception:
         continue
+    cup.append(r)
+cup.sort(key=lambda r:r.get("race_date") or "")
+
+# Preserve the app's curated 36-race schedule. This job's purpose is final points.
+path=pathlib.Path("data/results.json")
+existing=json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+schedule=existing.get("schedule",[])
+out={"season":YEAR,"series_id":SERIES,"updated_at":datetime.datetime.now(datetime.timezone.utc).isoformat(),"schedule":schedule,"races":[]}
+
+for info in cup:
+    rid=info.get("race_id")
+    if not rid: continue
+    # Ignore races that have not started/completed.
+    try:
+        if int(info.get("actual_laps") or 0)<=0: continue
+    except Exception:
+        continue
+    try:
+        blob=get(f"{CACHE}/{YEAR}/{SERIES}/{rid}/raceResults.json")
+    except Exception as e:
+        print("skip",rid,e)
+        continue
+    results=first_list(blob)
     normalized=[]
     for x in results:
-        name=x.get("driver_fullname") or x.get("driver_name")
+        name=x.get("driver_fullname") or x.get("driver_name") or x.get("driverFullName")
         pts=x.get("points_earned")
+        if pts is None: pts=x.get("points")
         if name and pts is not None:
-            normalized.append({"driver":name,"points":int(pts),"finish":int(x.get("finishing_position") or 0),"disqualified":bool(x.get("disqualified",False))})
+            try: pts=int(float(pts))
+            except Exception: continue
+            normalized.append({"driver":name,"points":pts})
     if normalized:
-        out["races"].append({"race_id":rid,"name":race.get("race_name") or info.get("race_name"),"track":race.get("track_name") or info.get("track_name"),"date":(race.get("race_date") or info.get("race_date") or "")[:10],"inspection_complete":True,"results":normalized})
-path=pathlib.Path("data/results.json"); path.parent.mkdir(parents=True,exist_ok=True)
+        out["races"].append({
+            "race_id":rid,
+            "name":info.get("race_name") or "",
+            "track":info.get("track_name") or "",
+            "date":(info.get("race_date") or "")[:10],
+            "official":True,
+            "results":normalized
+        })
+        print("loaded",rid,(info.get("race_date") or "")[:10],len(normalized),"drivers")
+
 path.write_text(json.dumps(out,indent=2),encoding="utf-8")
-print("published",len(out["races"]),"final races")
+print("published",len(out["races"]),"completed points races")
