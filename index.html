@@ -11,7 +11,7 @@
 <details class="card"><summary>Install on iPhone</summary><p class="small">Open this site in Safari. Tap Share, then Add to Home Screen. Sunday Picks will open like an app.</p></details>
 </main><script>
 const PLAYERS=["Matthew","Tanner","Tom","Debra"];
-const DRIVERS=["Ross Chastain","Austin Cindric","Austin Dillon","Kyle Larson","Brad Keselowski","Justin Haley","Corey LaJoie","Kyle Busch","Chase Elliott","Denny Hamlin","Ryan Blaney","AJ Allmendinger","Chris Buescher","Christopher Bell","Harrison Burton","Joey Logano","Bubba Wallace","William Byron","Todd Gilliland","Michael McDowell","Ty Gibbs","John Hunter Nemechek","Erik Jones","Ricky Stenhouse Jr.","Alex Bowman","Daniel Suárez","Carson Hocevar","Zane Smith","Noah Gragson","Josh Berry","Tyler Reddick","Ryan Preece","Shane van Gisbergen"];
+const DRIVERS=["Ross Chastain","Austin Cindric","Austin Dillon","Noah Gragson","Kyle Larson","Brad Keselowski","Daniel Suárez","Chase Elliott","Ty Dillon","Denny Hamlin","Ryan Blaney","AJ Allmendinger","Chris Buescher","Chase Briscoe","Christopher Bell","Josh Berry","Joey Logano","Bubba Wallace","William Byron","Todd Gilliland","Riley Herbst","Zane Smith","Cole Custer","John Hunter Nemechek","Erik Jones","Tyler Reddick","Ricky Stenhouse Jr.","Alex Bowman","Cody Ware","Ty Gibbs","Ryan Preece","Michael McDowell","Carson Hocevar","Connor Zilisch","Shane van Gisbergen"];
 const KEY="sundayPicks2026v2";
 let state=JSON.parse(localStorage.getItem(KEY)||"null")||{phase:"regular",base:Object.fromEntries(PLAYERS.map(p=>[p,0])),races:[]};
 const $=id=>document.getElementById(id);
