@@ -1,0 +1,1 @@
+{"name":"sunday-picks","private":true,"scripts":{"test":"node tests/database.mjs && node tests/interface.mjs"},"devDependencies":{"@electric-sql/pglite":"0.5.8","happy-dom":"20.14.5"}}

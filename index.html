@@ -4,77 +4,66 @@
 :root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#f9fafb;background:#0b1020}*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#0b1020,#111827);min-height:100vh;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}header{padding:22px 18px 12px}h1{margin:0;font-size:30px}.sub{color:#9ca3af;margin-top:4px}.wrap{padding:0 14px 40px;max-width:720px;margin:auto}.card{background:#182033;border:1px solid #29334b;border-radius:18px;padding:16px;margin:12px 0;box-shadow:0 8px 24px #0003}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stand{display:grid;grid-template-columns:42px 1fr auto;align-items:center;padding:12px 0;border-bottom:1px solid #29334b}.stand:last-child{border:0}.rank{font-size:22px;font-weight:800}.pts{font-weight:800;font-size:20px}label{display:block;color:#cbd5e1;font-size:13px;margin:10px 0 5px}input,select,button{width:100%;font:inherit;border-radius:12px;border:1px solid #374151;padding:12px;background:#0f172a;color:#fff}button{background:#2563eb;border:0;font-weight:700;margin-top:10px}button.secondary{background:#334155}button.danger{background:#7f1d1d}.player{padding:10px 0;border-bottom:1px solid #29334b}.player:last-child{border:0}.small{font-size:12px;color:#94a3b8}.pill{display:inline-block;padding:5px 9px;border-radius:999px;background:#25304a;color:#cbd5e1;font-size:12px}.row{display:flex;gap:8px}.row>*{flex:1}.hidden{display:none}h2{font-size:18px;margin:0 0 10px}summary{font-weight:700;cursor:pointer}.ok{color:#86efac}.warn{color:#fde68a}
 </style></head><body><header><h1>Sunday Picks</h1><div class="sub">NASCAR Cup Series Pick-Em</div></header><main class="wrap">
 <section class="card"><div class="row"><div><span class="pill" id="phasePill">Regular Season</span></div><div style="text-align:right"><span class="small" id="saveStatus">Connecting…</span></div></div><h2 style="margin-top:14px">Standings</h2><div id="standings"></div></section>
-<section class="card"><h2>Add Race & Picks</h2><label>Race</label><select id="raceSelect"><option value="">Loading official NASCAR schedule…</option></select><div class="small" id="raceSelectStatus" style="margin-top:6px">Select the official race. The race ID is used for scoring.</div><div id="pickFields"></div><button id="saveRace">Save Race & Picks</button><div class="small" style="margin-top:8px">Each driver can be used once per player during the regular season. Driver availability resets when the Chase starts.</div></section>
+<section class="card"><h2>Player Sign-in</h2><div id="authStatus" role="status"></div><form id="loginForm"><label for="email">Your registered email</label><input id="email" type="email" autocomplete="email" required><button id="loginBtn">Email Me a Sign-in Link</button></form><button id="signOut" class="secondary hidden">Sign Out</button></section><section class="card"><h2>Make Your Pick</h2><label>Race</label><select id="raceSelect"><option value="">Loading official NASCAR schedule…</option></select><div class="small" id="raceSelectStatus" style="margin-top:6px">Select the official race. The race ID is used for scoring.</div><div id="pickFields"></div><button id="saveRace">Save Race & Picks</button><div class="small" style="margin-top:8px">Picks lock at the start of race day (Eastern time). Matthew can correct past picks. Each driver can be used once per player during the regular season. Driver availability resets when the Chase starts.</div></section>
 <section class="card"><h2>Race History & Scoring</h2><button id="autoScoreBtn">Update Results from NASCAR</button><div class="small" id="resultsStatus" style="margin-top:8px">Checks official post-inspection NASCAR results.</div><div id="history"></div></section>
 <section class="card"><h2>Share & Backup</h2><button id="shareBtn">Share Standings Image</button><div class="row"><button class="secondary" id="exportBtn">Export Backup</button><button class="secondary" id="importBtn">Restore Backup</button></div><input class="hidden" type="file" id="importFile" accept="application/json"></section>
 <section class="card"><h2>Season</h2><button id="chaseBtn">Start Chase & Reseed</button><div class="small" style="margin-top:8px">Top four are reseeded 2,100, 2,075, 2,065 and 2,060. All four continue through the 10-race Chase.</div><button class="danger" id="resetBtn">Reset Entire League</button></section>
 <details class="card"><summary>Install on iPhone</summary><p class="small">Open this site in Safari. Tap Share, then Add to Home Screen. Sunday Picks will open like an app.</p></details>
-</main><script>
+</main><script src="./vendor/supabase.js"></script><script>
 const PLAYERS=["Matthew","Tanner","Tom","Debora"];
 const DRIVERS=["Ross Chastain","Austin Cindric","Austin Dillon","Noah Gragson","Kyle Larson","Brad Keselowski","Daniel Suárez","Chase Elliott","Ty Dillon","Denny Hamlin","Ryan Blaney","AJ Allmendinger","Chris Buescher","Chase Briscoe","Christopher Bell","Josh Berry","Joey Logano","Bubba Wallace","William Byron","Todd Gilliland","Riley Herbst","Zane Smith","Cole Custer","John Hunter Nemechek","Erik Jones","Tyler Reddick","Ricky Stenhouse Jr.","Alex Bowman","Cody Ware","Ty Gibbs","Ryan Preece","Michael McDowell","Carson Hocevar","Connor Zilisch","Shane van Gisbergen"];
 const KEY="sundayPicks2026v2";
 const SUPABASE_URL="https://pbgfgmzawnwxogssmgit.supabase.co";
 const SUPABASE_KEY="sb_publishable_xbY7-EXADYaA37FeezuKWg_TrnI0csr";
 const LEAGUE_ID="family-2026";
-let cloudReady=false,cloudSaving=false;
-let state=JSON.parse(localStorage.getItem(KEY)||"null")||{phase:"regular",base:Object.fromEntries(PLAYERS.map(p=>[p,0])),races:[]};
+
+let cloudReady=false,session=null,player=null;
+let state=migrateDebora(JSON.parse(localStorage.getItem(KEY)||"null")||{phase:"regular",base:Object.fromEntries(PLAYERS.map(p=>[p,0])),races:[]});
 const $=id=>document.getElementById(id);
+const client=supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+const commissioner=()=>player==="Matthew";
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function localSave(){localStorage.setItem(KEY,JSON.stringify(state));}
-async function cloudRequest(method,body){
- const res=await fetch(SUPABASE_URL+"/rest/v1/sunday_picks_league?id=eq."+encodeURIComponent(LEAGUE_ID),{method,headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY,"Content-Type":"application/json","Prefer":"return=minimal"},body:body?JSON.stringify(body):undefined});
- if(!res.ok)throw new Error("Cloud "+res.status); return res;
-}
-async function save(){
- localSave();
- if(!cloudReady||cloudSaving)return;
- cloudSaving=true;$("saveStatus").textContent="Saving shared league…";
- try{await cloudRequest("PATCH",{data:state,updated_at:new Date().toISOString()});$("saveStatus").textContent="Shared · Saved "+new Date().toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});}
- catch(e){$("saveStatus").textContent="Saved on this iPhone · Cloud retry needed";}
- finally{cloudSaving=false;}
-}
-function migrateDebora(s){
- if(!s)return s;
- if(s.base&&Object.prototype.hasOwnProperty.call(s.base,"Debra")){if(!Object.prototype.hasOwnProperty.call(s.base,"Debora"))s.base.Debora=s.base.Debra;delete s.base.Debra;}
- for(const r of (s.races||[])){
-  if(r.picks&&Object.prototype.hasOwnProperty.call(r.picks,"Debra")){if(!Object.prototype.hasOwnProperty.call(r.picks,"Debora"))r.picks.Debora=r.picks.Debra;delete r.picks.Debra;}
-  if(r.results&&Object.prototype.hasOwnProperty.call(r.results,"Debra")){if(!Object.prototype.hasOwnProperty.call(r.results,"Debora"))r.results.Debora=r.results.Debra;delete r.results.Debra;}
- }
- return s;
-}
-state=migrateDebora(state);
-async function initCloud(){
- $("saveStatus").textContent="Connecting to shared league…";
- try{
-  const res=await fetch(SUPABASE_URL+"/rest/v1/sunday_picks_league?id=eq."+encodeURIComponent(LEAGUE_ID)+"&select=data,updated_at",{headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY}});
-  if(!res.ok)throw new Error("Cloud "+res.status); const rows=await res.json(),remote=rows[0]?.data;
-  const localHasData=(state.races||[]).length>0,remoteHasData=(remote?.races||[]).length>0;
-  cloudReady=true;
-  if(localHasData&&!remoteHasData){await save();}
-  else if(remote){state=migrateDebora(remote);localSave();render();await save();}
-  $("saveStatus").textContent="Shared league connected";
- }catch(e){cloudReady=false;$("saveStatus").textContent="Offline · Saved on this iPhone";}
-}
+function migrateDebora(s){if(!s)return s;for(const obj of [s.base,...(s.races||[]).flatMap(r=>[r.picks,r.results])])if(obj&&'Debra' in obj){obj.Debora??=obj.Debra;delete obj.Debra;}return s;}
+async function rpc(name,args){const {data,error}=await client.rpc(name,args);if(error)throw error;return data;}
+async function refresh(){try{const remote=await rpc('sp_snapshot');if(!remote)throw Error('League not configured');state=migrateDebora(remote);cloudReady=true;localSave();await updateOfficialResults(true);render();loadSchedule();$('saveStatus').textContent='Shared league connected';}catch(e){cloudReady=false;$('saveStatus').textContent='Read only · Supabase setup or connection required';render();}}
+async function save(){if(!commissioner()||!cloudReady)throw Error('Commissioner sign-in and connection required');await rpc('sp_replace',{payload:state,expected_revision:state.revision});await refresh();}
+async function mutate(action){if(!commissioner()||!cloudReady)return alert('Sign in as Matthew to manage the league.');const before=structuredClone(state);try{await action();await save();}catch(e){state=before;alert(e.message);await refresh();}}
+async function identity(next){session=next;try{player=session?await rpc('sp_player'):null;}catch{player=null;}$('authStatus').textContent=player?'Signed in as '+player+(commissioner()?' · Commissioner':''):session?'This email is not registered for this league.':'Sign in to submit your own pick.';$('loginForm').classList.toggle('hidden',!!session);$('signOut').classList.toggle('hidden',!session);render();}
+$('loginForm').onsubmit=async e=>{e.preventDefault();const email=$('email').value.trim().toLowerCase();$('loginBtn').disabled=true;try{const {error}=await client.auth.signInWithOtp({email,options:{emailRedirectTo:'https://mbishop95-ship-it.github.io/sunday-picks/'}});if(error)throw error;$('authStatus').textContent='Check your email and open the sign-in link.';}catch(e){$('authStatus').textContent=e.message;}finally{$('loginBtn').disabled=false;}};
+$('signOut').onclick=async()=>{const {error}=await client.auth.signOut();if(error)alert(error.message);};
+client.auth.onAuthStateChange((event,next)=>{setTimeout(()=>identity(next),0);});
+async function initCloud(){const params=new URLSearchParams(location.hash.slice(1));if(params.has('error_description'))$('authStatus').textContent=params.get('error_description');const {data,error}=await client.auth.getSession();if(error)$('authStatus').textContent=error.message;await identity(data?.session||null);await refresh();if(params.has('error_description'))$('authStatus').textContent=params.get('error_description')+' Request a new sign-in link.';}
 function total(p){return (state.base[p]||0)+state.races.filter(r=>state.phase==="regular"||r.phase==="chase").filter(r=>state.phase===state.phase&&r.scored).reduce((s,r)=>s+(r.results?.[p]?.points||0),0)}
 function standings(){return PLAYERS.slice().sort((a,b)=>total(b)-total(a))}
 function used(p){return new Set(state.races.filter(r=>r.phase===state.phase).map(r=>r.picks?.[p]).filter(Boolean))}
 function render(){
- $("phasePill").textContent=state.phase==="regular"?"Regular Season":"The Chase";
- $("standings").innerHTML=standings().map((p,i)=>'<div class="stand"><div class="rank">'+(i+1)+'</div><div><b>'+p+'</b></div><div class="pts">'+total(p)+'</div></div>').join("");
- $("pickFields").innerHTML=PLAYERS.map(p=>{const u=used(p);return '<div class="player"><label>'+p+' pick</label><select data-player="'+p+'"><option value="">Choose driver</option>'+DRIVERS.map(d=>'<option '+(u.has(d)?'disabled':'')+'>'+d+'</option>').join("")+'</select><div class="small">'+u.size+' drivers used this '+(state.phase==="regular"?"regular season":"Chase")+'</div></div>'}).join("");
- $("history").innerHTML=state.races.length?state.races.slice().reverse().map(r=>'<div class="player"><b>'+r.name+'</b> <span class="small">'+r.date+' · '+(r.phase==="regular"?"Regular":"Chase")+'</span>'+PLAYERS.map(p=>'<div class="small">'+p+': '+(r.picks[p]||"No pick")+(r.scored?' · <b>'+r.results[p].points+' pts</b>':'')+'</div>').join("")+(r.scored?'':'<button class="secondary score" data-id="'+r.id+'">Correct Results Manually</button>')+'</div>').join(""):'<div class="small">No races saved yet.</div>';
- document.querySelectorAll(".score").forEach(b=>b.onclick=()=>scoreRace(b.dataset.id));
+ $('phasePill').textContent=state.phase==='regular'?'Regular Season':'The Chase';
+ $('standings').innerHTML=standings().map((p,i)=>'<div class="stand"><div class="rank">'+(i+1)+'</div><div><b>'+p+'</b></div><div class="pts">'+total(p)+'</div></div>').join('');
+ const race=state.races.find(r=>String(r.officialRaceId)===$('raceSelect').value);
+ const fields=commissioner()?PLAYERS:player?[player]:[];
+ $('pickFields').innerHTML=fields.map(p=>{const u=new Set(state.races.filter(r=>r.phase===state.phase&&r.id!==race?.id).map(r=>r.picks?.[p]).filter(Boolean));return '<div class="player"><label>'+p+' pick</label><select data-player="'+p+'"><option value="">Choose driver</option>'+DRIVERS.map(d=>'<option '+(u.has(d)?'disabled ':'')+(race?.picks?.[p]===d?'selected ':'')+'>'+esc(d)+'</option>').join('')+'</select><div class="small">'+u.size+' drivers used this phase</div></div>';}).join('');
+ $('saveRace').disabled=!player||!cloudReady;
+ $('saveRace').textContent=commissioner()?'Save Player Picks':'Save My Pick';
+ for(const id of ['chaseBtn','resetBtn','importBtn'])$(id).classList.toggle('hidden',!commissioner());
+ $('history').innerHTML=state.races.length?state.races.slice().reverse().map(r=>'<div class="player"><b>'+esc(r.name)+'</b> <span class="small">'+esc(r.date)+' · '+(r.phase==='regular'?'Regular':'Chase')+'</span>'+PLAYERS.map(p=>'<div class="small">'+p+': '+esc(r.picks?.[p]||'No pick')+(r.results?.[p]?' · <b>'+Number(r.results[p].points)+' pts</b>':'')+'</div>').join('')+(commissioner()?'<button class="secondary score" data-id="'+esc(r.id)+'">Correct Picks / Results</button>':'')+'</div>').join(''):'<div class="small">No races saved yet.</div>';
+ document.querySelectorAll('.score').forEach(b=>b.onclick=()=>scoreRace(b.dataset.id));
 }
 let officialFeed=null;
 async function loadSchedule(){
  try{
   const res=await fetch("./data/results.json?ts="+Date.now(),{cache:"no-store"}); if(!res.ok)throw new Error();
   officialFeed=await res.json(); const sel=$("raceSelect"), existing=new Set(state.races.map(r=>String(r.officialRaceId||"")));
-  const schedule=(officialFeed.schedule||[]).slice().sort((a,b)=>String(a.date).localeCompare(String(b.date)));
-  sel.innerHTML='<option value="">Choose a 2026 Cup race</option>'+schedule.map(r=>'<option value="'+r.race_id+'" '+(existing.has(String(r.race_id))?'disabled':'')+'>'+r.date+' · '+(r.name||r.track||("Race "+r.race_id))+'</option>').join("");
-  $("raceSelectStatus").textContent=schedule.length?"Official NASCAR Cup schedule loaded.":"Schedule update is still being generated. Try again shortly.";
+  const selected=sel.value; const schedule=(officialFeed.schedule||[]).slice().sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+  sel.innerHTML='<option value="">Choose a 2026 Cup race</option>'+schedule.map(r=>'<option value="'+r.race_id+'" '+''+'>'+r.date+' · '+(r.name||r.track||("Race "+r.race_id))+'</option>').join("");
+  sel.value=selected; $('raceSelect').onchange=render; $("raceSelectStatus").textContent=schedule.length?"Official NASCAR Cup schedule loaded.":"Schedule update is still being generated. Try again shortly.";
  }catch(e){$("raceSelectStatus").textContent="Could not load the official schedule yet. Try again shortly.";}
 }
-$("saveRace").onclick=()=>{const rid=$("raceSelect").value,picks={};document.querySelectorAll("[data-player]").forEach(s=>picks[s.dataset.player]=s.value);const info=(officialFeed?.schedule||[]).find(r=>String(r.race_id)===String(rid));if(!info||PLAYERS.some(p=>!picks[p]))return alert("Choose the official race and all four picks.");for(const p of PLAYERS)if(used(p).has(picks[p]))return alert(p+" already used "+picks[p]+" this phase.");state.races.push({id:Date.now().toString(),officialRaceId:info.race_id,name:info.name||info.track,date:info.date,phase:state.phase,picks,scored:false,results:{}});save();render();loadSchedule();updateOfficialResults(true);}
+$('raceSelect').onchange=render;
+$('saveRace').onclick=async()=>{const rid=$('raceSelect').value,info=(officialFeed?.schedule||[]).find(r=>String(r.race_id)===rid);if(!info)return alert('Choose a race.');const picks={};document.querySelectorAll('[data-player]').forEach(s=>{if(s.value)picks[s.dataset.player]=s.value;});if(!Object.keys(picks).length)return alert('Choose a driver.');
+ if(!commissioner()){try{await rpc('sp_save_pick',{race:rid,chosen_driver:picks[player]});await refresh();await updateOfficialResults(true);}catch(e){alert(e.message);}return;}
+ await mutate(()=>{let r=state.races.find(r=>String(r.officialRaceId)===rid);for(const [p,d] of Object.entries(picks))if(state.races.some(x=>x.id!==r?.id&&x.phase===state.phase&&x.picks?.[p]===d))throw Error(p+' already used '+d+' this phase.');if(!r){r={id:rid,officialRaceId:rid,name:info.name||info.track,date:info.date,phase:state.phase,picks:{},scored:false,results:{}};state.races.push(r);}Object.assign(r.picks,picks);r.scored=false;r.results={};});await updateOfficialResults(true);
+};
 function normName(s){return (s||"").toLowerCase().replace(/[^a-z0-9]/g,"")}
 async function updateOfficialResults(silent=false){
  const status=$("resultsStatus"); if(!silent)status.textContent="Checking NASCAR results…";
@@ -86,20 +75,21 @@ async function updateOfficialResults(silent=false){
    if(!fr){const rd=new Date(r.date+"T12:00:00"),candidates=(feed.races||[]).filter(x=>Math.abs(new Date(x.date+"T12:00:00")-rd)<=3*86400000);if(candidates.length){candidates.sort((a,b)=>Math.abs(new Date(a.date)-rd)-Math.abs(new Date(b.date)-rd));fr=candidates[0];}}
    if(!fr)continue;
    const results={}; let complete=true;
-   for(const p of PLAYERS){const hit=(fr.results||[]).find(x=>normName(x.driver)===normName(r.picks[p]));if(!hit){complete=false;break}results[p]={points:Number(hit.points),finish:Number(hit.finish)||0};}
-   if(complete){r.results=results;r.scored=true;r.officialRaceId=fr.race_id;r.official=true;scored++;}
+   for(const p of PLAYERS){const hit=(fr.results||[]).find(x=>normName(x.driver)===normName(r.picks[p]));if(!r.picks[p])continue;if(!hit){complete=false;break}results[p]={points:Number(hit.points),finish:Number(hit.finish)||0};}
+   if(complete){r.results=results;r.scored=true;r.nascarRaceId=fr.race_id;r.official=true;scored++;}
   }
-  if(scored){save();render();}
+  if(scored){render();}
   const when=feed.updated_at?new Date(feed.updated_at).toLocaleString():"not yet";
   status.textContent=scored?("Updated "+scored+" race"+(scored===1?"":"s")+" from official NASCAR results."):("No new final results yet. Feed last checked "+when+".");
  }catch(e){status.textContent="Automatic results are temporarily unavailable. Manual correction is still available."; if(!silent)alert(status.textContent);}
 }
 $("autoScoreBtn").onclick=()=>updateOfficialResults(false);
-function scoreRace(id){const r=state.races.find(x=>x.id===id);if(!r)return;for(const p of PLAYERS){const v=prompt("Official NASCAR points for "+p+"'s pick, "+r.picks[p]+":",r.results[p]?.points??"");if(v===null)return;const n=Number(v);if(!Number.isFinite(n)||n<0)return alert("Points must be a number.");r.results[p]={points:n};}r.scored=true;save();render();}
-$("chaseBtn").onclick=()=>{if(state.phase==="chase")return alert("The Chase has already started.");if(!confirm("Start the Chase? Regular-season driver use will reset."))return;const order=standings(),seeds=[2100,2075,2065,2060];order.forEach((p,i)=>state.base[p]=seeds[i]);state.phase="chase";save();render();}
-$("resetBtn").onclick=()=>{if(confirm("Erase all Sunday Picks data on this iPhone?")){state={phase:"regular",base:Object.fromEntries(PLAYERS.map(p=>[p,0])),races:[]};save();render();}}
+function scoreRace(id){mutate(()=>{const r=state.races.find(x=>x.id===id);if(!r)return;const updated=structuredClone(r);for(const p of PLAYERS){const d=prompt(p+' driver (blank = no pick):',r.picks?.[p]||'');if(d===null)throw Error('Correction cancelled');if(d&&!DRIVERS.includes(d))throw Error('Unknown driver');if(d)updated.picks[p]=d;else delete updated.picks[p];if(!d){delete updated.results[p];continue;}const v=prompt('Official points for '+p+':',r.results?.[p]?.points??'');if(v===null)throw Error('Correction cancelled');const n=Number(v);if(!Number.isFinite(n)||n<0)throw Error('Points must be a nonnegative number');updated.results[p]={points:n};}updated.scored=true;Object.assign(r,updated);});}
+$('chaseBtn').onclick=()=>{if(state.phase==='chase')return alert('The Chase has already started.');if(!confirm('Start the Chase and reset driver availability?'))return;mutate(()=>{standings().forEach((p,i)=>state.base[p]=[2100,2075,2065,2060][i]);state.phase='chase';});};
+$('resetBtn').onclick=()=>{if(confirm('Erase the entire shared league? Export a backup first.'))mutate(()=>{state={phase:'regular',base:Object.fromEntries(PLAYERS.map(p=>[p,0])),races:[],revision:state.revision};});};
 $("exportBtn").onclick=()=>{const b=new Blob([JSON.stringify(state,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="sunday-picks-backup.json";a.click();URL.revokeObjectURL(a.href)}
-$("importBtn").onclick=()=>$("importFile").click();$("importFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{try{state=JSON.parse(rd.result);save();render();alert("Backup restored.");}catch{alert("That backup file could not be read.");}};rd.readAsText(f)}
+$('importBtn').onclick=()=>$('importFile').click();$('importFile').onchange=async e=>{const f=e.target.files[0];if(!f||!commissioner())return;try{const backup=migrateDebora(JSON.parse(await f.text()));if(!Array.isArray(backup.races)||!backup.base||!['regular','chase'].includes(backup.phase))throw Error('Invalid backup');if(confirm('Replace the shared league with this backup?'))await mutate(()=>{state={...backup,revision:state.revision};});}catch(e){alert(e.message);}e.target.value='';};
 $("shareBtn").onclick=async()=>{const c=document.createElement("canvas");c.width=1080;c.height=1350;const x=c.getContext("2d");x.fillStyle="#0b1020";x.fillRect(0,0,c.width,c.height);x.fillStyle="#fff";x.font="bold 82px -apple-system";x.fillText("SUNDAY PICKS",80,135);x.fillStyle="#9ca3af";x.font="36px -apple-system";x.fillText(state.phase==="regular"?"Regular Season Standings":"The Chase Standings",80,200);standings().forEach((p,i)=>{const y=350+i*190;x.fillStyle="#182033";x.fillRect(65,y-85,950,145);x.fillStyle="#fff";x.font="bold 52px -apple-system";x.fillText((i+1)+".  "+p,105,y);x.textAlign="right";x.fillText(total(p)+" pts",965,y);x.textAlign="left";});const blob=await new Promise(r=>c.toBlob(r,"image/png"));const file=new File([blob],"sunday-picks-standings.png",{type:"image/png"});if(navigator.share&&navigator.canShare?.({files:[file]}))await navigator.share({files:[file],title:"Sunday Picks Standings"});else{const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=file.name;a.click();}}
-if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));render();localSave();loadSchedule();initCloud().then(()=>{loadSchedule();setTimeout(()=>updateOfficialResults(true),800);});
+if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));render();loadSchedule();initCloud().then(()=>{loadSchedule();setTimeout(()=>updateOfficialResults(true),800);});
+setInterval(async()=>{await refresh();await updateOfficialResults(true);},60000);
 </script></body></html>

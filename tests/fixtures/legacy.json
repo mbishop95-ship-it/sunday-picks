@@ -1,0 +1,143 @@
+[
+  {
+    "data": {
+      "phase": "regular",
+      "base": {
+        "Matthew": 0,
+        "Tanner": 0,
+        "Tom": 0,
+        "Debora": 0
+      },
+      "races": [
+        {
+          "id": "fixture-0",
+          "officialRaceId": "2026-01",
+          "name": "Test Race 1",
+          "date": "2026-02-15",
+          "phase": "regular",
+          "picks": {
+            "Matthew": "Ross Chastain",
+            "Tanner": "Ross Chastain",
+            "Tom": "Ross Chastain",
+            "Debora": "Ross Chastain"
+          },
+          "scored": true,
+          "results": {
+            "Matthew": {
+              "points": 10,
+              "finish": 1
+            },
+            "Tanner": {
+              "points": 10,
+              "finish": 1
+            },
+            "Tom": {
+              "points": 10,
+              "finish": 1
+            },
+            "Debora": {
+              "points": 10,
+              "finish": 1
+            }
+          }
+        },
+        {
+          "id": "fixture-1",
+          "officialRaceId": "2026-02",
+          "name": "Test Race 2",
+          "date": "2026-02-22",
+          "phase": "regular",
+          "picks": {
+            "Matthew": "Austin Cindric",
+            "Tanner": "Austin Cindric",
+            "Tom": "Austin Cindric",
+            "Debora": "Austin Cindric"
+          },
+          "scored": true,
+          "results": {
+            "Matthew": {
+              "points": 11,
+              "finish": 2
+            },
+            "Tanner": {
+              "points": 11,
+              "finish": 2
+            },
+            "Tom": {
+              "points": 11,
+              "finish": 2
+            },
+            "Debora": {
+              "points": 11,
+              "finish": 2
+            }
+          }
+        },
+        {
+          "id": "fixture-2",
+          "officialRaceId": "2026-03",
+          "name": "Test Race 3",
+          "date": "2026-03-01",
+          "phase": "regular",
+          "picks": {
+            "Matthew": "Austin Dillon",
+            "Tanner": "Austin Dillon",
+            "Tom": "Austin Dillon",
+            "Debora": "Austin Dillon"
+          },
+          "scored": true,
+          "results": {
+            "Matthew": {
+              "points": 12,
+              "finish": 3
+            },
+            "Tanner": {
+              "points": 12,
+              "finish": 3
+            },
+            "Tom": {
+              "points": 12,
+              "finish": 3
+            },
+            "Debora": {
+              "points": 12,
+              "finish": 3
+            }
+          }
+        },
+        {
+          "id": "fixture-3",
+          "officialRaceId": "2026-04",
+          "name": "Test Race 4",
+          "date": "2026-03-08",
+          "phase": "regular",
+          "picks": {
+            "Matthew": "Noah Gragson",
+            "Tanner": "Noah Gragson",
+            "Tom": "Noah Gragson",
+            "Debora": "Noah Gragson"
+          },
+          "scored": true,
+          "results": {
+            "Matthew": {
+              "points": 13,
+              "finish": 4
+            },
+            "Tanner": {
+              "points": 13,
+              "finish": 4
+            },
+            "Tom": {
+              "points": 13,
+              "finish": 4
+            },
+            "Debora": {
+              "points": 13,
+              "finish": 4
+            }
+          }
+        }
+      ]
+    }
+  }
+]
