@@ -5,7 +5,7 @@
 </style></head><body><header><h1>Sunday Picks</h1><div class="sub">NASCAR Cup Series Pick-Em</div></header><main class="wrap">
 <section class="card"><div class="row"><div><span class="pill" id="phasePill">Regular Season</span></div><div style="text-align:right"><span class="small" id="saveStatus">Saved on this iPhone</span></div></div><h2 style="margin-top:14px">Standings</h2><div id="standings"></div></section>
 <section class="card"><h2>Add Race & Picks</h2><div class="row"><div><label>Race</label><input id="raceName" placeholder="e.g. Daytona"></div><div><label>Date</label><input id="raceDate" type="date"></div></div><div id="pickFields"></div><button id="saveRace">Save Race & Picks</button><div class="small" style="margin-top:8px">Each driver can be used once per player during the regular season. Driver availability resets when the Chase starts.</div></section>
-<section class="card"><h2>Race History & Scoring</h2><div id="history"></div></section>
+<section class="card"><h2>Race History & Scoring</h2><button id="autoScoreBtn">Update Results from NASCAR</button><div class="small" id="resultsStatus" style="margin-top:8px">Checks official post-inspection NASCAR results.</div><div id="history"></div></section>
 <section class="card"><h2>Share & Backup</h2><button id="shareBtn">Share Standings Image</button><div class="row"><button class="secondary" id="exportBtn">Export Backup</button><button class="secondary" id="importBtn">Restore Backup</button></div><input class="hidden" type="file" id="importFile" accept="application/json"></section>
 <section class="card"><h2>Season</h2><button id="chaseBtn">Start Chase & Reseed</button><div class="small" style="margin-top:8px">Top four are reseeded 2,100, 2,075, 2,065 and 2,060. All four continue through the 10-race Chase.</div><button class="danger" id="resetBtn">Reset Entire League</button></section>
 <details class="card"><summary>Install on iPhone</summary><p class="small">Open this site in Safari. Tap Share, then Add to Home Screen. Sunday Picks will open like an app.</p></details>
@@ -23,15 +23,35 @@ function render(){
  $("phasePill").textContent=state.phase==="regular"?"Regular Season":"The Chase";
  $("standings").innerHTML=standings().map((p,i)=>'<div class="stand"><div class="rank">'+(i+1)+'</div><div><b>'+p+'</b></div><div class="pts">'+total(p)+'</div></div>').join("");
  $("pickFields").innerHTML=PLAYERS.map(p=>{const u=used(p);return '<div class="player"><label>'+p+' pick</label><select data-player="'+p+'"><option value="">Choose driver</option>'+DRIVERS.map(d=>'<option '+(u.has(d)?'disabled':'')+'>'+d+'</option>').join("")+'</select><div class="small">'+u.size+' drivers used this '+(state.phase==="regular"?"regular season":"Chase")+'</div></div>'}).join("");
- $("history").innerHTML=state.races.length?state.races.slice().reverse().map(r=>'<div class="player"><b>'+r.name+'</b> <span class="small">'+r.date+' · '+(r.phase==="regular"?"Regular":"Chase")+'</span>'+PLAYERS.map(p=>'<div class="small">'+p+': '+(r.picks[p]||"No pick")+(r.scored?' · <b>'+r.results[p].points+' pts</b>':'')+'</div>').join("")+(r.scored?'':'<button class="secondary score" data-id="'+r.id+'">Enter Official Points</button>')+'</div>').join(""):'<div class="small">No races saved yet.</div>';
+ $("history").innerHTML=state.races.length?state.races.slice().reverse().map(r=>'<div class="player"><b>'+r.name+'</b> <span class="small">'+r.date+' · '+(r.phase==="regular"?"Regular":"Chase")+'</span>'+PLAYERS.map(p=>'<div class="small">'+p+': '+(r.picks[p]||"No pick")+(r.scored?' · <b>'+r.results[p].points+' pts</b>':'')+'</div>').join("")+(r.scored?'':'<button class="secondary score" data-id="'+r.id+'">Correct Results Manually</button>')+'</div>').join(""):'<div class="small">No races saved yet.</div>';
  document.querySelectorAll(".score").forEach(b=>b.onclick=()=>scoreRace(b.dataset.id));
 }
 $("saveRace").onclick=()=>{const name=$("raceName").value.trim(),date=$("raceDate").value,picks={};document.querySelectorAll("[data-player]").forEach(s=>picks[s.dataset.player]=s.value);if(!name||!date||PLAYERS.some(p=>!picks[p]))return alert("Enter the race, date, and all four picks.");for(const p of PLAYERS)if(used(p).has(picks[p]))return alert(p+" already used "+picks[p]+" this phase.");state.races.push({id:Date.now().toString(),name,date,phase:state.phase,picks,scored:false,results:{}});$("raceName").value="";$("raceDate").value="";save();render();}
+function normName(s){return (s||"").toLowerCase().replace(/[^a-z0-9]/g,"")}
+async function updateOfficialResults(silent=false){
+ const status=$("resultsStatus"); if(!silent)status.textContent="Checking NASCAR results…";
+ try{
+  const res=await fetch("./data/results.json?ts="+Date.now(),{cache:"no-store"}); if(!res.ok)throw new Error("Results feed unavailable");
+  const feed=await res.json(); let scored=0;
+  for(const r of state.races.filter(x=>!x.scored)){
+   const rd=new Date(r.date+"T12:00:00"), candidates=(feed.races||[]).filter(fr=>Math.abs(new Date(fr.date+"T12:00:00")-rd)<=3*86400000);
+   if(!candidates.length)continue;
+   candidates.sort((a,b)=>Math.abs(new Date(a.date)-rd)-Math.abs(new Date(b.date)-rd)); const fr=candidates[0];
+   const results={}; let complete=true;
+   for(const p of PLAYERS){const hit=(fr.results||[]).find(x=>normName(x.driver)===normName(r.picks[p]));if(!hit){complete=false;break}results[p]={points:Number(hit.points),finish:Number(hit.finish)||0};}
+   if(complete){r.results=results;r.scored=true;r.officialRaceId=fr.race_id;r.official=true;scored++;}
+  }
+  if(scored){save();render();}
+  const when=feed.updated_at?new Date(feed.updated_at).toLocaleString():"not yet";
+  status.textContent=scored?("Updated "+scored+" race"+(scored===1?"":"s")+" from official NASCAR results."):("No new final results yet. Feed last checked "+when+".");
+ }catch(e){status.textContent="Automatic results are temporarily unavailable. Manual correction is still available."; if(!silent)alert(status.textContent);}
+}
+$("autoScoreBtn").onclick=()=>updateOfficialResults(false);
 function scoreRace(id){const r=state.races.find(x=>x.id===id);if(!r)return;for(const p of PLAYERS){const v=prompt("Official NASCAR points for "+p+"'s pick, "+r.picks[p]+":",r.results[p]?.points??"");if(v===null)return;const n=Number(v);if(!Number.isFinite(n)||n<0)return alert("Points must be a number.");r.results[p]={points:n};}r.scored=true;save();render();}
 $("chaseBtn").onclick=()=>{if(state.phase==="chase")return alert("The Chase has already started.");if(!confirm("Start the Chase? Regular-season driver use will reset."))return;const order=standings(),seeds=[2100,2075,2065,2060];order.forEach((p,i)=>state.base[p]=seeds[i]);state.phase="chase";save();render();}
 $("resetBtn").onclick=()=>{if(confirm("Erase all Sunday Picks data on this iPhone?")){state={phase:"regular",base:Object.fromEntries(PLAYERS.map(p=>[p,0])),races:[]};save();render();}}
 $("exportBtn").onclick=()=>{const b=new Blob([JSON.stringify(state,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="sunday-picks-backup.json";a.click();URL.revokeObjectURL(a.href)}
 $("importBtn").onclick=()=>$("importFile").click();$("importFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{try{state=JSON.parse(rd.result);save();render();alert("Backup restored.");}catch{alert("That backup file could not be read.");}};rd.readAsText(f)}
 $("shareBtn").onclick=async()=>{const c=document.createElement("canvas");c.width=1080;c.height=1350;const x=c.getContext("2d");x.fillStyle="#0b1020";x.fillRect(0,0,c.width,c.height);x.fillStyle="#fff";x.font="bold 82px -apple-system";x.fillText("SUNDAY PICKS",80,135);x.fillStyle="#9ca3af";x.font="36px -apple-system";x.fillText(state.phase==="regular"?"Regular Season Standings":"The Chase Standings",80,200);standings().forEach((p,i)=>{const y=350+i*190;x.fillStyle="#182033";x.fillRect(65,y-85,950,145);x.fillStyle="#fff";x.font="bold 52px -apple-system";x.fillText((i+1)+".  "+p,105,y);x.textAlign="right";x.fillText(total(p)+" pts",965,y);x.textAlign="left";});const blob=await new Promise(r=>c.toBlob(r,"image/png"));const file=new File([blob],"sunday-picks-standings.png",{type:"image/png"});if(navigator.share&&navigator.canShare?.({files:[file]}))await navigator.share({files:[file],title:"Sunday Picks Standings"});else{const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=file.name;a.click();}}
-if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));render();save();
+if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));render();save();setTimeout(()=>updateOfficialResults(true),800);
 </script></body></html>
