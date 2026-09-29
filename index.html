@@ -10,7 +10,7 @@
 <section class="card"><h2>Season</h2><button id="chaseBtn">Start Chase & Reseed</button><div class="small" style="margin-top:8px">Top four are reseeded 2,100, 2,075, 2,065 and 2,060. All four continue through the 10-race Chase.</div><button class="danger" id="resetBtn">Reset Entire League</button></section>
 <details class="card"><summary>Install on iPhone</summary><p class="small">Open this site in Safari. Tap Share, then Add to Home Screen. Sunday Picks will open like an app.</p></details>
 </main><script>
-const PLAYERS=["Matthew","Tanner","Tom","Debra"];
+const PLAYERS=["Matthew","Tanner","Tom","Debora"];
 const DRIVERS=["Ross Chastain","Austin Cindric","Austin Dillon","Noah Gragson","Kyle Larson","Brad Keselowski","Daniel Suárez","Chase Elliott","Ty Dillon","Denny Hamlin","Ryan Blaney","AJ Allmendinger","Chris Buescher","Chase Briscoe","Christopher Bell","Josh Berry","Joey Logano","Bubba Wallace","William Byron","Todd Gilliland","Riley Herbst","Zane Smith","Cole Custer","John Hunter Nemechek","Erik Jones","Tyler Reddick","Ricky Stenhouse Jr.","Alex Bowman","Cody Ware","Ty Gibbs","Ryan Preece","Michael McDowell","Carson Hocevar","Connor Zilisch","Shane van Gisbergen"];
 const KEY="sundayPicks2026v2";
 const SUPABASE_URL="https://pbgfgmzawnwxogssmgit.supabase.co";
@@ -32,6 +32,16 @@ async function save(){
  catch(e){$("saveStatus").textContent="Saved on this iPhone · Cloud retry needed";}
  finally{cloudSaving=false;}
 }
+function migrateDebora(s){
+ if(!s)return s;
+ if(s.base&&Object.prototype.hasOwnProperty.call(s.base,"Debra")){if(!Object.prototype.hasOwnProperty.call(s.base,"Debora"))s.base.Debora=s.base.Debra;delete s.base.Debra;}
+ for(const r of (s.races||[])){
+  if(r.picks&&Object.prototype.hasOwnProperty.call(r.picks,"Debra")){if(!Object.prototype.hasOwnProperty.call(r.picks,"Debora"))r.picks.Debora=r.picks.Debra;delete r.picks.Debra;}
+  if(r.results&&Object.prototype.hasOwnProperty.call(r.results,"Debra")){if(!Object.prototype.hasOwnProperty.call(r.results,"Debora"))r.results.Debora=r.results.Debra;delete r.results.Debra;}
+ }
+ return s;
+}
+state=migrateDebora(state);
 async function initCloud(){
  $("saveStatus").textContent="Connecting to shared league…";
  try{
@@ -40,7 +50,7 @@ async function initCloud(){
   const localHasData=(state.races||[]).length>0,remoteHasData=(remote?.races||[]).length>0;
   cloudReady=true;
   if(localHasData&&!remoteHasData){await save();}
-  else if(remote){state=remote;localSave();render();}
+  else if(remote){state=migrateDebora(remote);localSave();render();await save();}
   $("saveStatus").textContent="Shared league connected";
  }catch(e){cloudReady=false;$("saveStatus").textContent="Offline · Saved on this iPhone";}
 }
