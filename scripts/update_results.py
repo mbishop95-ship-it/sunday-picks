@@ -12,9 +12,10 @@ if isinstance(races,dict):
     for key in ("races","race_list","RaceInfo"):
         if key in races:
             races=races[key]; break
-eligible=[r for r in races if int(r.get("series_id",1))==1 and int(r.get("race_type_id",1))==1 and int(r.get("actual_laps") or 0)>0]
-eligible.sort(key=lambda r:r.get("race_date") or "")
-out={"season":YEAR,"series_id":1,"updated_at":datetime.datetime.now(datetime.timezone.utc).isoformat(),"races":[]}
+cup=[r for r in races if int(r.get("series_id",1))==1 and int(r.get("race_type_id",1))==1]
+cup.sort(key=lambda r:r.get("race_date") or "")
+eligible=[r for r in cup if int(r.get("actual_laps") or 0)>0]
+out={"season":YEAR,"series_id":1,"updated_at":datetime.datetime.now(datetime.timezone.utc).isoformat(),"schedule":[{"race_id":r.get("race_id"),"name":r.get("race_name"),"track":r.get("track_name"),"date":(r.get("race_date") or "")[:10]} for r in cup],"races":[]}
 for info in eligible:
     rid=info["race_id"]
     try:
