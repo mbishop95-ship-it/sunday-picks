@@ -1,4 +1,5 @@
 import json, urllib.request, pathlib, datetime
+from zoneinfo import ZoneInfo
 
 YEAR=datetime.datetime.now().year
 SERIES=1
@@ -33,6 +34,25 @@ cup.sort(key=lambda r:r.get("race_date") or "")
 path=pathlib.Path("data/results.json")
 existing=json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
 schedule=existing.get("schedule",[])
+# Keep curated race IDs/names/dates; enrich each with NASCAR's scheduled start.
+for entry in schedule:
+    info=next((r for r in cup if str(r.get("race_id"))==str(entry.get("nascar_race_id"))),None)
+    if info is None:
+        candidates=[r for r in cup if (r.get("date_scheduled") or r.get("race_date", ""))[:10]==entry["date"] or r.get("race_date", "")[:10]==entry["date"]]
+        info=candidates[0] if len(candidates)==1 else None
+    if info is None: continue
+    events=[e for e in info.get("schedule",[]) if e.get("run_type")==3 and e.get("start_time_utc")]
+    try:
+        if events:
+            start=datetime.datetime.fromisoformat(events[-1]["start_time_utc"])
+            if start.tzinfo is None: start=start.replace(tzinfo=datetime.timezone.utc)
+        else:
+            start=datetime.datetime.fromisoformat(info["race_date"])
+            if start.tzinfo is None: start=start.replace(tzinfo=ZoneInfo("America/New_York"))
+        entry["starts_at"]=start.astimezone(datetime.timezone.utc).isoformat()
+        entry["nascar_race_id"]=str(info["race_id"])
+    except (ValueError,KeyError):
+        continue # Preserve the last known deadline if NASCAR omits a time.
 out={"season":YEAR,"series_id":SERIES,"updated_at":datetime.datetime.now(datetime.timezone.utc).isoformat(),"schedule":schedule,"races":[]}
 
 for info in cup:

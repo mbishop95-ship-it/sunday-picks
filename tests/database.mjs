@@ -8,6 +8,7 @@ await db.query('insert into sunday_picks_league values($1,$2)',['family-2026',le
 let sql=fs.readFileSync(new URL('../supabase/001-player-picks.sql',import.meta.url),'utf8');
 for(const [marker,email] of Object.entries({MATTHEW_EMAIL:'matthew@example.test',TANNER_EMAIL:'tanner@example.test',DEBORA_EMAIL:'debora@example.test',TOM_EMAIL:'tom@example.test'}))sql=sql.replaceAll(marker,email);
 await db.exec(sql);
+await db.exec(fs.readFileSync(new URL("../supabase/002-race-start-lock.sql",import.meta.url),"utf8"));
 let snap=(await db.query('select sp_snapshot() s')).rows[0].s;
 assert.equal(snap.races.length,legacy.races.length);assert.deepEqual(snap.base,legacy.base);
 for(const r of legacy.races){let x=snap.races.find(x=>x.id===r.id);assert.deepEqual(x.picks,r.picks);assert.deepEqual(x.results,r.results);assert.equal(x.scored,r.scored);}
@@ -26,5 +27,18 @@ await reject("select sp_save_pick('2026-35','Chase Elliott')");await reject("sel
 await as(5);assert.equal((await db.query('select sp_player() p')).rows[0].p,null);await reject("select sp_save_pick('2026-35','Alex Bowman')");
 await as(1);snap.phase='chase';snap.base={Matthew:2100,Tanner:2075,Tom:2065,Debora:2060};await db.query('select sp_replace($1,$2)',[snap,snap.revision]);await reject('select sp_replace($1,$2)',[snap,snap.revision]);
 await as(2);await db.query("select sp_save_pick('2026-35','Chase Elliott')");
+await as(1);
+await db.query("select sp_sync_start_times($1)",[[{race_id:'2026-34',starts_at:'2030-01-01T20:00:00Z'}]]);
+await as(2);await reject("select sp_sync_start_times($1)",[[{race_id:'2026-34',starts_at:'2030-01-01T20:00:00Z'}]]);
+await db.exec('reset role');
+await db.exec("update sp_schedule set info=jsonb_set(info,'{starts_at}',to_jsonb(clock_timestamp()+interval '1 hour')) where id='2026-34'");
+await as(2);await db.query("select sp_save_pick('2026-34','Austin Dillon')");
+await db.exec('reset role');await db.exec("update sp_schedule set info=jsonb_set(info,'{starts_at}',to_jsonb(clock_timestamp())) where id='2026-34'");
+await as(2);await reject("select sp_save_pick('2026-34','Austin Cindric')");
+await db.exec('reset role');await db.exec("update sp_schedule set info=info-'starts_at' where id='2026-33'");
+await as(2);await reject("select sp_save_pick('2026-33','Austin Cindric')");
+await as(1);await db.query("select sp_sync_start_times($1)",[[{race_id:'2026-34',starts_at:'2030-01-01T20:00:00Z'}]]);
+await as(2);await reject("select sp_save_pick('2026-34','Austin Cindric')");
+console.log('PASS: start-time locks allow before start, reject at/after start and missing time, restrict synchronization, never reopen expired deadlines');
 console.log('PASS: migration preserves 4 races, public read, anonymous deny, identities, own-only writes, independent submissions, edits, driver reuse, dates, invalid inputs, commissioner restriction, stale revisions, Chase reset');
 await db.close();

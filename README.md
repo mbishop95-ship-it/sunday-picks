@@ -19,7 +19,7 @@ The Site URL and allowed redirect URL have already been configured as the shared
 
 The database maps the verified `auth.uid()` to its confirmed email in `auth.users`; user-editable profile metadata never determines player or commissioner privileges. Emails are not placed in public standings tables.
 
-Picks are individual `(race_id, player)` rows. Public standings, history and picks remain readable. RLS and table grants deny direct browser writes. The authenticated pick function derives the player server-side, validates driver/schedule/phase, enforces driver-use-once and locks at midnight Eastern on race day (the existing schedule provides dates, not start times). Matthew can correct past picks/results and manage all players. Normal submissions are serialized briefly by a league-row lock so concurrent players cannot overwrite one another. Commissioner operations are atomic and require the current revision; stale edits fail instead of overwriting newer picks.
+Picks are individual `(race_id, player)` rows. Public standings, history and picks remain readable. RLS and table grants deny direct browser writes. The authenticated pick function derives the player server-side, validates driver/schedule/phase, enforces driver-use-once and, after migration 002, locks at the NASCAR scheduled race start using the database clock. The app displays the exact deadline in Eastern time. Matthew can correct past picks/results and manage all players. Normal submissions are serialized briefly by a league-row lock so concurrent players cannot overwrite one another. Commissioner operations are atomic and require the current revision; stale edits fail instead of overwriting newer picks.
 
 League settings and race/result metadata remain separate from normalized pick rows. Schedule, driver list, 2026 results/backfill and results-update workflow are preserved. Existing numeric NASCAR IDs are matched to schedule IDs by date during migration. The original race IDs, picks, manual scores, historical phases and Chase base totals are retained.
 
@@ -35,3 +35,9 @@ These tests do not send real emails or connect to the production database. Full 
 
 Auth: https://supabase.com/docs/reference/javascript/auth-signinwithotp
 RLS: https://supabase.com/docs/guides/database/postgres/row-level-security
+
+## Scheduled race-start deadlines
+
+Run `supabase/002-race-start-lock.sql` once in the existing Supabase SQL Editor after migration 001. This updates only schedule deadline metadata and the pick-lock function, without changing player mappings, picks, results or standings. Then deploy the corresponding app update.
+
+Start times come from NASCAR race events (`run_type=3`, `start_time_utc`), with `race_date` interpreted in America/New_York when detailed events are unavailable. The results-update job enriches the curated schedule with UTC timestamps while preserving race IDs, names, dates and result history. On Matthew's next visit, the app synchronizes upcoming start-time changes into Supabase; everyone sees the authoritative database deadline. Other players cannot change deadlines. Once a stored deadline passes, synchronization cannot reopen that race. This uses scheduled starts, not a live green-flag detector; weather delays do not automatically reopen picks. Missing start times block ordinary submissions until Matthew updates the schedule.
