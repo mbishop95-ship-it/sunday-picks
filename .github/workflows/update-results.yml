@@ -1,6 +1,11 @@
 name: Update NASCAR Results
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/update_results.py'
+      - '.github/workflows/update-results.yml'
   schedule:
     - cron: "17 */2 * * 0,1"
 permissions:
