@@ -1,7 +1,7 @@
 {
   "season": 2026,
   "series_id": 1,
-  "updated_at": "2026-09-29T22:31:16.173Z",
+  "updated_at": "2026-09-29T22:36:09.583Z",
   "schedule": [
     {
       "race_id": "2026-01",
@@ -220,5 +220,159 @@
       "track": "Homestead-Miami Speedway"
     }
   ],
-  "races": []
+  "races": [
+    {
+      "race_id": "2026-30",
+      "name": "Hollywood Casino 400",
+      "track": "Kansas Speedway",
+      "date": "2026-09-27",
+      "official": true,
+      "results": [
+        {
+          "driver": "Kyle Larson",
+          "points": 76
+        },
+        {
+          "driver": "Austin Cindric",
+          "points": 52
+        },
+        {
+          "driver": "Denny Hamlin",
+          "points": 51
+        },
+        {
+          "driver": "Chase Briscoe",
+          "points": 40
+        },
+        {
+          "driver": "Ryan Blaney",
+          "points": 37
+        },
+        {
+          "driver": "Christopher Bell",
+          "points": 43
+        },
+        {
+          "driver": "William Byron",
+          "points": 39
+        },
+        {
+          "driver": "Chase Elliott",
+          "points": 32
+        },
+        {
+          "driver": "Bubba Wallace",
+          "points": 28
+        },
+        {
+          "driver": "Ryan Preece",
+          "points": 27
+        },
+        {
+          "driver": "Tyler Reddick",
+          "points": 26
+        },
+        {
+          "driver": "Brad Keselowski",
+          "points": 26
+        },
+        {
+          "driver": "John Hunter Nemechek",
+          "points": 24
+        },
+        {
+          "driver": "Daniel Suárez",
+          "points": 23
+        },
+        {
+          "driver": "Ross Chastain",
+          "points": 22
+        },
+        {
+          "driver": "Erik Jones",
+          "points": 21
+        },
+        {
+          "driver": "Ty Gibbs",
+          "points": 24
+        },
+        {
+          "driver": "Alex Bowman",
+          "points": 19
+        },
+        {
+          "driver": "Todd Gilliland",
+          "points": 18
+        },
+        {
+          "driver": "Joey Logano",
+          "points": 25
+        },
+        {
+          "driver": "Austin Dillon",
+          "points": 16
+        },
+        {
+          "driver": "AJ Allmendinger",
+          "points": 15
+        },
+        {
+          "driver": "Chris Buescher",
+          "points": 14
+        },
+        {
+          "driver": "Shane van Gisbergen",
+          "points": 13
+        },
+        {
+          "driver": "Riley Herbst",
+          "points": 12
+        },
+        {
+          "driver": "Austin Hill",
+          "points": 0
+        },
+        {
+          "driver": "Michael McDowell",
+          "points": 10
+        },
+        {
+          "driver": "Ty Dillon",
+          "points": 9
+        },
+        {
+          "driver": "Connor Zilisch",
+          "points": 8
+        },
+        {
+          "driver": "Cole Custer",
+          "points": 7
+        },
+        {
+          "driver": "Zane Smith",
+          "points": 6
+        },
+        {
+          "driver": "Ricky Stenhouse Jr.",
+          "points": 5
+        },
+        {
+          "driver": "Carson Hocevar",
+          "points": 11
+        },
+        {
+          "driver": "Cody Ware",
+          "points": 3
+        },
+        {
+          "driver": "Josh Berry",
+          "points": 2
+        },
+        {
+          "driver": "Noah Gragson",
+          "points": 1
+        }
+      ]
+    }
+  ]
 }
