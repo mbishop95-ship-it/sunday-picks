@@ -1,7 +1,7 @@
 {
   "season": 2026,
   "series_id": 1,
-  "updated_at": "2026-10-04T22:29:12.480938+00:00",
+  "updated_at": "2026-10-05T00:41:02.818535+00:00",
   "schedule": [
     {
       "race_id": "2026-01",
@@ -5095,6 +5095,159 @@
         },
         {
           "driver": "Noah Gragson",
+          "points": 1
+        }
+      ]
+    },
+    {
+      "race_id": 5630,
+      "name": "South Point 400",
+      "track": "Las Vegas Motor Speedway",
+      "date": "2026-10-04",
+      "official": true,
+      "results": [
+        {
+          "driver": "Chase Briscoe",
+          "points": 75
+        },
+        {
+          "driver": "Kyle Larson",
+          "points": 36
+        },
+        {
+          "driver": "Tyler Reddick",
+          "points": 41
+        },
+        {
+          "driver": "Austin Cindric",
+          "points": 48
+        },
+        {
+          "driver": "Ryan Blaney",
+          "points": 47
+        },
+        {
+          "driver": "William Byron",
+          "points": 34
+        },
+        {
+          "driver": "Chase Elliott",
+          "points": 34
+        },
+        {
+          "driver": "Bubba Wallace",
+          "points": 39
+        },
+        {
+          "driver": "Shane Van Gisbergen",
+          "points": 28
+        },
+        {
+          "driver": "Joey Logano",
+          "points": 32
+        },
+        {
+          "driver": "Alex Bowman",
+          "points": 28
+        },
+        {
+          "driver": "Carson Hocevar",
+          "points": 28
+        },
+        {
+          "driver": "Chris Buescher",
+          "points": 26
+        },
+        {
+          "driver": "Daniel Su\u00e1rez",
+          "points": 28
+        },
+        {
+          "driver": "AJ Allmendinger",
+          "points": 22
+        },
+        {
+          "driver": "Denny Hamlin",
+          "points": 22
+        },
+        {
+          "driver": "Ty Gibbs",
+          "points": 20
+        },
+        {
+          "driver": "Riley Herbst",
+          "points": 19
+        },
+        {
+          "driver": "Austin Dillon",
+          "points": 18
+        },
+        {
+          "driver": "Noah Gragson",
+          "points": 17
+        },
+        {
+          "driver": "Michael McDowell",
+          "points": 17
+        },
+        {
+          "driver": "Austin Hill",
+          "points": 0
+        },
+        {
+          "driver": "Christopher Bell",
+          "points": 31
+        },
+        {
+          "driver": "Brad Keselowski",
+          "points": 13
+        },
+        {
+          "driver": "Erik Jones",
+          "points": 12
+        },
+        {
+          "driver": "Josh Berry",
+          "points": 11
+        },
+        {
+          "driver": "Cole Custer",
+          "points": 10
+        },
+        {
+          "driver": "Ryan Preece",
+          "points": 9
+        },
+        {
+          "driver": "John H. Nemechek",
+          "points": 8
+        },
+        {
+          "driver": "Ross Chastain",
+          "points": 7
+        },
+        {
+          "driver": "Ty Dillon",
+          "points": 6
+        },
+        {
+          "driver": "Ricky Stenhouse Jr",
+          "points": 5
+        },
+        {
+          "driver": "Todd Gilliland",
+          "points": 4
+        },
+        {
+          "driver": "Cody Ware",
+          "points": 3
+        },
+        {
+          "driver": "Connor Zilisch",
+          "points": 2
+        },
+        {
+          "driver": "Zane Smith",
           "points": 1
         }
       ]
