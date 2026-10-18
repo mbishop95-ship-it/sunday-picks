@@ -1,7 +1,7 @@
 {
   "season": 2026,
   "series_id": 1,
-  "updated_at": "2026-10-18T20:40:05.621678+00:00",
+  "updated_at": "2026-10-18T22:39:33.833694+00:00",
   "schedule": [
     {
       "race_id": "2026-01",
@@ -5413,6 +5413,163 @@
         },
         {
           "driver": "William Byron",
+          "points": 1
+        }
+      ]
+    },
+    {
+      "race_id": 5633,
+      "name": "Freeway Insurance 500",
+      "track": "Phoenix Raceway",
+      "date": "2026-10-18",
+      "official": true,
+      "results": [
+        {
+          "driver": "Tyler Reddick",
+          "points": 61
+        },
+        {
+          "driver": "Ryan Blaney",
+          "points": 48
+        },
+        {
+          "driver": "Chase Elliott",
+          "points": 39
+        },
+        {
+          "driver": "Christopher Bell",
+          "points": 49
+        },
+        {
+          "driver": "Corey Heim",
+          "points": 0
+        },
+        {
+          "driver": "Joey Logano",
+          "points": 51
+        },
+        {
+          "driver": "Daniel Su\u00e1rez",
+          "points": 30
+        },
+        {
+          "driver": "Chase Briscoe",
+          "points": 44
+        },
+        {
+          "driver": "Ross Chastain",
+          "points": 31
+        },
+        {
+          "driver": "Ty Gibbs",
+          "points": 27
+        },
+        {
+          "driver": "Josh Berry",
+          "points": 34
+        },
+        {
+          "driver": "Carson Hocevar",
+          "points": 25
+        },
+        {
+          "driver": "Noah Gragson",
+          "points": 24
+        },
+        {
+          "driver": "Todd Gilliland",
+          "points": 25
+        },
+        {
+          "driver": "Zane Smith",
+          "points": 22
+        },
+        {
+          "driver": "Brad Keselowski",
+          "points": 21
+        },
+        {
+          "driver": "Bubba Wallace",
+          "points": 26
+        },
+        {
+          "driver": "Ryan Preece",
+          "points": 19
+        },
+        {
+          "driver": "Austin Cindric",
+          "points": 18
+        },
+        {
+          "driver": "Connor Zilisch",
+          "points": 17
+        },
+        {
+          "driver": "William Byron",
+          "points": 21
+        },
+        {
+          "driver": "Chris Buescher",
+          "points": 15
+        },
+        {
+          "driver": "AJ Allmendinger",
+          "points": 14
+        },
+        {
+          "driver": "Austin Hill",
+          "points": 0
+        },
+        {
+          "driver": "Erik Jones",
+          "points": 12
+        },
+        {
+          "driver": "Shane Van Gisbergen",
+          "points": 11
+        },
+        {
+          "driver": "Cole Custer",
+          "points": 10
+        },
+        {
+          "driver": "Denny Hamlin",
+          "points": 21
+        },
+        {
+          "driver": "Alex Bowman",
+          "points": 8
+        },
+        {
+          "driver": "Ricky Stenhouse Jr",
+          "points": 7
+        },
+        {
+          "driver": "Ty Dillon",
+          "points": 6
+        },
+        {
+          "driver": "Riley Herbst",
+          "points": 5
+        },
+        {
+          "driver": "John H. Nemechek",
+          "points": 4
+        },
+        {
+          "driver": "Kyle Larson",
+          "points": 3
+        },
+        {
+          "driver": "Cody Ware",
+          "points": 2
+        },
+        {
+          "driver": "Michael McDowell",
+          "points": 1
+        },
+        {
+          "driver": "Austin Dillon",
           "points": 1
         }
       ]
