@@ -1,7 +1,7 @@
 {
   "season": 2026,
   "series_id": 1,
-  "updated_at": "2026-10-25T20:41:28.934410+00:00",
+  "updated_at": "2026-10-25T22:40:05.864555+00:00",
   "schedule": [
     {
       "race_id": "2026-01",
@@ -5570,6 +5570,175 @@
         },
         {
           "driver": "Austin Dillon",
+          "points": 1
+        }
+      ]
+    },
+    {
+      "race_id": 5631,
+      "name": "YellaWood 500",
+      "track": "Talladega Superspeedway",
+      "date": "2026-10-25",
+      "official": true,
+      "results": [
+        {
+          "driver": "Kyle Larson",
+          "points": 71
+        },
+        {
+          "driver": "William Byron",
+          "points": 47
+        },
+        {
+          "driver": "Ricky Stenhouse Jr",
+          "points": 34
+        },
+        {
+          "driver": "Ross Chastain",
+          "points": 33
+        },
+        {
+          "driver": "Cole Custer",
+          "points": 32
+        },
+        {
+          "driver": "Carson Hocevar",
+          "points": 31
+        },
+        {
+          "driver": "Todd Gilliland",
+          "points": 30
+        },
+        {
+          "driver": "Denny Hamlin",
+          "points": 29
+        },
+        {
+          "driver": "Alex Bowman",
+          "points": 28
+        },
+        {
+          "driver": "Michael McDowell",
+          "points": 27
+        },
+        {
+          "driver": "Austin Dillon",
+          "points": 26
+        },
+        {
+          "driver": "Josh Berry",
+          "points": 25
+        },
+        {
+          "driver": "Ryan Preece",
+          "points": 33
+        },
+        {
+          "driver": "Austin Hill",
+          "points": 0
+        },
+        {
+          "driver": "Ty Dillon",
+          "points": 22
+        },
+        {
+          "driver": "Cody Ware",
+          "points": 21
+        },
+        {
+          "driver": "Ty Gibbs",
+          "points": 20
+        },
+        {
+          "driver": "Daniel Su\u00e1rez",
+          "points": 19
+        },
+        {
+          "driver": "Zane Smith",
+          "points": 18
+        },
+        {
+          "driver": "Noah Gragson",
+          "points": 17
+        },
+        {
+          "driver": "Joey Gase",
+          "points": 0
+        },
+        {
+          "driver": "Bubba Wallace",
+          "points": 15
+        },
+        {
+          "driver": "Gray Gaulding",
+          "points": 0
+        },
+        {
+          "driver": "Brad Keselowski",
+          "points": 21
+        },
+        {
+          "driver": "Daniel Dye",
+          "points": 0
+        },
+        {
+          "driver": "Riley Herbst",
+          "points": 16
+        },
+        {
+          "driver": "Austin Cindric",
+          "points": 18
+        },
+        {
+          "driver": "Erik Jones",
+          "points": 11
+        },
+        {
+          "driver": "Connor Zilisch",
+          "points": 12
+        },
+        {
+          "driver": "Shane Van Gisbergen",
+          "points": 10
+        },
+        {
+          "driver": "AJ Allmendinger",
+          "points": 6
+        },
+        {
+          "driver": "Chris Buescher",
+          "points": 20
+        },
+        {
+          "driver": "Chase Briscoe",
+          "points": 16
+        },
+        {
+          "driver": "Joey Logano",
+          "points": 15
+        },
+        {
+          "driver": "Christopher Bell",
+          "points": 2
+        },
+        {
+          "driver": "Chase Elliott",
+          "points": 2
+        },
+        {
+          "driver": "Tyler Reddick",
+          "points": 1
+        },
+        {
+          "driver": "Ryan Blaney",
+          "points": 4
+        },
+        {
+          "driver": "John H. Nemechek",
+          "points": 1
+        },
+        {
+          "driver": "Casey Mears",
           "points": 1
         }
       ]
