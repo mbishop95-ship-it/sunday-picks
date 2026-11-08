@@ -1,7 +1,7 @@
 {
   "season": 2026,
   "series_id": 1,
-  "updated_at": "2026-11-08T18:50:35.373096+00:00",
+  "updated_at": "2026-11-08T23:44:06.825939+00:00",
   "schedule": [
     {
       "race_id": "2026-01",
@@ -5896,6 +5896,175 @@
         },
         {
           "driver": "Josh Bilicki",
+          "points": 0
+        }
+      ]
+    },
+    {
+      "race_id": 5601,
+      "name": "NASCAR Cup Series Championship Race",
+      "track": "Homestead-Miami Speedway",
+      "date": "2026-11-08",
+      "official": true,
+      "results": [
+        {
+          "driver": "Ryan Blaney",
+          "points": 71
+        },
+        {
+          "driver": "Tyler Reddick",
+          "points": 53
+        },
+        {
+          "driver": "William Byron",
+          "points": 41
+        },
+        {
+          "driver": "Christopher Bell",
+          "points": 50
+        },
+        {
+          "driver": "Bubba Wallace",
+          "points": 36
+        },
+        {
+          "driver": "Denny Hamlin",
+          "points": 46
+        },
+        {
+          "driver": "Austin Cindric",
+          "points": 43
+        },
+        {
+          "driver": "Daniel Su\u00e1rez",
+          "points": 33
+        },
+        {
+          "driver": "Noah Gragson",
+          "points": 28
+        },
+        {
+          "driver": "Michael McDowell",
+          "points": 27
+        },
+        {
+          "driver": "Ty Gibbs",
+          "points": 26
+        },
+        {
+          "driver": "Kyle Larson",
+          "points": 32
+        },
+        {
+          "driver": "Josh Berry",
+          "points": 24
+        },
+        {
+          "driver": "Zane Smith",
+          "points": 25
+        },
+        {
+          "driver": "Austin Hill",
+          "points": 0
+        },
+        {
+          "driver": "Alex Bowman",
+          "points": 25
+        },
+        {
+          "driver": "Joey Logano",
+          "points": 20
+        },
+        {
+          "driver": "Todd Gilliland",
+          "points": 19
+        },
+        {
+          "driver": "Connor Zilisch",
+          "points": 18
+        },
+        {
+          "driver": "Erik Jones",
+          "points": 17
+        },
+        {
+          "driver": "Justin Haley",
+          "points": 0
+        },
+        {
+          "driver": "Chase Elliott",
+          "points": 19
+        },
+        {
+          "driver": "AJ Allmendinger",
+          "points": 14
+        },
+        {
+          "driver": "Chris Buescher",
+          "points": 13
+        },
+        {
+          "driver": "Ryan Preece",
+          "points": 12
+        },
+        {
+          "driver": "Austin Dillon",
+          "points": 11
+        },
+        {
+          "driver": "Ross Chastain",
+          "points": 10
+        },
+        {
+          "driver": "Brad Keselowski",
+          "points": 9
+        },
+        {
+          "driver": "Cole Custer",
+          "points": 8
+        },
+        {
+          "driver": "John H. Nemechek",
+          "points": 7
+        },
+        {
+          "driver": "Ty Dillon",
+          "points": 6
+        },
+        {
+          "driver": "Ricky Stenhouse Jr",
+          "points": 5
+        },
+        {
+          "driver": "Riley Herbst",
+          "points": 4
+        },
+        {
+          "driver": "Shane Van Gisbergen",
+          "points": 3
+        },
+        {
+          "driver": "Cody Ware",
+          "points": 2
+        },
+        {
+          "driver": "JJ Yeley",
+          "points": 0
+        },
+        {
+          "driver": "Casey Mears",
+          "points": 1
+        },
+        {
+          "driver": "Chad Finchum",
+          "points": 0
+        },
+        {
+          "driver": "Chase Briscoe",
+          "points": 1
+        },
+        {
+          "driver": "Corey Heim",
           "points": 0
         }
       ]
