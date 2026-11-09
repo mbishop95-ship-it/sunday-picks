@@ -16,6 +16,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Fetch official NASCAR Cup results
+        env:
+          NASCAR_SEASON: '2026'
+          NASCAR_RESULTS_PATH: data/results.json
         run: python scripts/update_results.py
       - name: Commit updated results
         run: |
