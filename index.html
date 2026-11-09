@@ -21,7 +21,7 @@ const SUPABASE_KEY="sb_publishable_xbY7-EXADYaA37FeezuKWg_TrnI0csr";
 const LEAGUE_ID="family-2026";
 
 let cloudReady=false,session=null,player=null;
-let state=migrateDebora(JSON.parse(localStorage.getItem(KEY)||"null")||emptyState());
+let state=migrateDebora(JSON.parse(localStorage.getItem("sundayPicks"+season+"v2")||"null")||emptyState());
 const $=id=>document.getElementById(id);
 const client=supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 const commissioner=()=>player==="Matthew";
