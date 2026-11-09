@@ -3,7 +3,7 @@
 <style>
 :root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#f9fafb;background:#0b1020}*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#0b1020,#111827);min-height:100vh;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}header{padding:22px 18px 12px}h1{margin:0;font-size:30px}.sub{color:#9ca3af;margin-top:4px}.wrap{padding:0 14px 40px;max-width:720px;margin:auto}.card{background:#182033;border:1px solid #29334b;border-radius:18px;padding:16px;margin:12px 0;box-shadow:0 8px 24px #0003}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stand{display:grid;grid-template-columns:42px 1fr auto;align-items:center;padding:12px 0;border-bottom:1px solid #29334b}.stand:last-child{border:0}.rank{font-size:22px;font-weight:800}.pts{font-weight:800;font-size:20px}label{display:block;color:#cbd5e1;font-size:13px;margin:10px 0 5px}input,select,button{width:100%;font:inherit;border-radius:12px;border:1px solid #374151;padding:12px;background:#0f172a;color:#fff}button{background:#2563eb;border:0;font-weight:700;margin-top:10px}button.secondary{background:#334155}button.danger{background:#7f1d1d}.player{padding:10px 0;border-bottom:1px solid #29334b}.player:last-child{border:0}.small{font-size:12px;color:#94a3b8}.pill{display:inline-block;padding:5px 9px;border-radius:999px;background:#25304a;color:#cbd5e1;font-size:12px}.row{display:flex;gap:8px}.row>*{flex:1}.hidden{display:none}h2{font-size:18px;margin:0 0 10px}summary{font-weight:700;cursor:pointer}.ok{color:#86efac}.warn{color:#fde68a}
 </style></head><body><header><h1>Sunday Picks</h1><div class="sub">NASCAR Cup Series Pick-Em</div></header><main class="wrap">
-<section class="card"><div class="row"><div><span class="pill" id="phasePill">Regular Season</span></div><div style="text-align:right"><span class="small" id="saveStatus">Connecting…</span></div></div><h2 style="margin-top:14px">Standings</h2><div id="standings"></div></section>
+<section class="card"><label for="seasonSelect">Season</label><select id="seasonSelect"><option value="2026">2026</option><option value="2027">2027</option></select><div class="row"><div><span class="pill" id="phasePill">Regular Season</span></div><div style="text-align:right"><span class="small" id="saveStatus">Connecting…</span></div></div><h2 style="margin-top:14px">Standings</h2><div id="standings"></div></section>
 <section class="card"><h2>Player Sign-in</h2><div id="authStatus" role="status"></div><form id="loginForm"><label for="email">Your registered email</label><input id="email" type="email" autocomplete="email" required><button id="loginBtn">Email Me a Sign-in Link</button></form><button id="signOut" class="secondary hidden">Sign Out</button></section><section class="card"><h2>Make Your Pick</h2><label>Race</label><select id="raceSelect"><option value="">Loading official NASCAR schedule…</option></select><div class="small" id="raceSelectStatus" style="margin-top:6px">Select the official race. The race ID is used for scoring.</div><div id="pickFields"></div><button id="saveRace">Save Race & Picks</button><div class="small" style="margin-top:8px">Picks lock at the scheduled race start time shown above. Matthew can correct past picks. Each driver can be used once per player during the regular season. Driver availability resets when the Chase starts.</div></section>
 <section class="card"><h2>Race History & Scoring</h2><button id="autoScoreBtn">Update Results from NASCAR</button><div class="small" id="resultsStatus" style="margin-top:8px">Checks official post-inspection NASCAR results.</div><div id="history"></div></section>
 <section class="card"><h2>Share & Backup</h2><button id="shareBtn">Share Standings Image</button><div class="row"><button class="secondary" id="exportBtn">Export Backup</button><button class="secondary" id="importBtn">Restore Backup</button></div><input class="hidden" type="file" id="importFile" accept="application/json"></section>
@@ -12,20 +12,23 @@
 </main><script src="./vendor/supabase.js"></script><script>
 const PLAYERS=["Matthew","Tanner","Tom","Debora"];
 const DRIVERS=["Ross Chastain","Austin Cindric","Austin Dillon","Noah Gragson","Kyle Larson","Brad Keselowski","Daniel Suárez","Chase Elliott","Ty Dillon","Denny Hamlin","Ryan Blaney","AJ Allmendinger","Chris Buescher","Chase Briscoe","Christopher Bell","Josh Berry","Joey Logano","Bubba Wallace","William Byron","Todd Gilliland","Riley Herbst","Zane Smith","Cole Custer","John Hunter Nemechek","Erik Jones","Tyler Reddick","Ricky Stenhouse Jr.","Alex Bowman","Cody Ware","Ty Gibbs","Ryan Preece","Michael McDowell","Carson Hocevar","Connor Zilisch","Shane van Gisbergen"];
+let season=localStorage.getItem("sundayPicksSeason")||"2026";
 const KEY="sundayPicks2026v2";
+const emptyState=()=>({phase:"regular",base:Object.fromEntries(PLAYERS.map(p=>[p,0])),races:[]});
+const feedPath=()=>season==="2027"?"./data/results-2027.json":"./data/results.json";
 const SUPABASE_URL="https://pbgfgmzawnwxogssmgit.supabase.co";
 const SUPABASE_KEY="sb_publishable_xbY7-EXADYaA37FeezuKWg_TrnI0csr";
 const LEAGUE_ID="family-2026";
 
 let cloudReady=false,session=null,player=null;
-let state=migrateDebora(JSON.parse(localStorage.getItem(KEY)||"null")||{phase:"regular",base:Object.fromEntries(PLAYERS.map(p=>[p,0])),races:[]});
+let state=migrateDebora(JSON.parse(localStorage.getItem(KEY)||"null")||emptyState());
 const $=id=>document.getElementById(id);
 const client=supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 const commissioner=()=>player==="Matthew";
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function localSave(){localStorage.setItem(KEY,JSON.stringify(state));}
+function localSave(){localStorage.setItem("sundayPicks"+season+"v2",JSON.stringify(state));}
 function migrateDebora(s){if(!s)return s;for(const obj of [s.base,...(s.races||[]).flatMap(r=>[r.picks,r.results])])if(obj&&'Debra' in obj){obj.Debora??=obj.Debra;delete obj.Debra;}return s;}
-async function rpc(name,args){const {data,error}=await client.rpc(name,args);if(error)throw error;return data;}
+async function rpc(name,args){const method=season==='2027'&&['sp_snapshot','sp_save_pick','sp_replace','sp_sync_start_times'].includes(name)?name.replace('sp_','sp27_'):name;const {data,error}=await client.rpc(method,args);if(error)throw error;return data;}
 async function refresh(){try{const remote=await rpc('sp_snapshot');if(!remote)throw Error('League not configured');state=migrateDebora(remote);cloudReady=true;localSave();await updateOfficialResults(true);render();loadSchedule();$('saveStatus').textContent='Shared league connected';}catch(e){cloudReady=false;$('saveStatus').textContent='Read only · Supabase setup or connection required';render();}}
 async function save(){if(!commissioner()||!cloudReady)throw Error('Commissioner sign-in and connection required');await rpc('sp_replace',{payload:state,expected_revision:state.revision});await refresh();}
 async function mutate(action){if(!commissioner()||!cloudReady)return alert('Sign in as Matthew to manage the league.');const before=structuredClone(state);try{await action();await save();}catch(e){state=before;alert(e.message);await refresh();}}
@@ -38,6 +41,7 @@ function total(p){return (state.base[p]||0)+state.races.filter(r=>state.phase===
 function standings(){return PLAYERS.slice().sort((a,b)=>total(b)-total(a))}
 function used(p){return new Set(state.races.filter(r=>r.phase===state.phase).map(r=>r.picks?.[p]).filter(Boolean))}
 function render(){
+  $("seasonSelect").value=season;
  $('phasePill').textContent=state.phase==='regular'?'Regular Season':'The Chase';
  $('standings').innerHTML=standings().map((p,i)=>'<div class="stand"><div class="rank">'+(i+1)+'</div><div><b>'+p+'</b></div><div class="pts">'+total(p)+'</div></div>').join('');
  const race=state.races.find(r=>String(r.officialRaceId)===$('raceSelect').value);
@@ -56,30 +60,31 @@ function showDeadline(){const r=raceDeadline();const start=r?.starts_at?new Date
 setInterval(showDeadline,1000);
 async function loadSchedule(){
  try{
-  const res=await fetch("./data/results.json?ts="+Date.now(),{cache:"no-store"}); if(!res.ok)throw new Error();
+  const res=await fetch(feedPath()+"?ts="+Date.now(),{cache:"no-store"}); if(!res.ok)throw new Error();
   officialFeed=await res.json();
   if(cloudReady){
    if(commissioner())try{await rpc('sp_sync_start_times',{entries:officialFeed.schedule||[]});}catch(e){console.warn('Race start synchronization unavailable',e.message);}
-   const {data,error}=await client.from('sp_schedule').select('id,info');
+   const {data,error}=await client.from(season==='2027'?'sp27_schedule':'sp_schedule').select('id,info');
    if(error)throw error;
    deadlineSchedule=data.map(r=>({...r.info,race_id:r.id}));
   }
   const sel=$("raceSelect"), existing=new Set(state.races.map(r=>String(r.officialRaceId||"")));
   const selected=sel.value; const schedule=(officialFeed.schedule||[]).slice().sort((a,b)=>String(a.date).localeCompare(String(b.date)));
   sel.innerHTML='<option value="">Choose a 2026 Cup race</option>'+schedule.map(r=>'<option value="'+r.race_id+'" '+''+'>'+r.date+' · '+(r.name||r.track||("Race "+r.race_id))+'</option>').join("");
-  sel.value=selected; $('raceSelect').onchange=render; showDeadline();
+  sel.value=selected; $('raceSelect').onchange=render;
+$('seasonSelect').onchange=async e=>{season=e.target.value;localStorage.setItem('sundayPicksSeason',season);state=migrateDebora(JSON.parse(localStorage.getItem('sundayPicks'+season+'v2')||'null')||emptyState());cloudReady=false;officialFeed=null;deadlineSchedule=[];$('raceSelect').innerHTML='<option value="">Loading season…</option>';render();await refresh();await loadSchedule();}; showDeadline();
  }catch(e){$("raceSelectStatus").textContent="Could not load the official schedule yet. Try again shortly.";}
 }
 $('raceSelect').onchange=render;
 $('saveRace').onclick=async()=>{const rid=$('raceSelect').value,info=(officialFeed?.schedule||[]).find(r=>String(r.race_id)===rid);if(!info)return alert('Choose a race.');const picks={};document.querySelectorAll('[data-player]').forEach(s=>{if(s.value)picks[s.dataset.player]=s.value;});if(!Object.keys(picks).length)return alert('Choose a driver.');
  if(!commissioner()){try{await rpc('sp_save_pick',{race:rid,chosen_driver:picks[player]});await refresh();await updateOfficialResults(true);}catch(e){alert(e.message);}return;}
- await mutate(()=>{let r=state.races.find(r=>String(r.officialRaceId)===rid);for(const [p,d] of Object.entries(picks))if(state.races.some(x=>x.id!==r?.id&&x.phase===state.phase&&x.picks?.[p]===d))throw Error(p+' already used '+d+' this phase.');if(!r){r={id:rid,officialRaceId:rid,name:info.name||info.track,date:info.date,phase:state.phase,picks:{},scored:false,results:{}};state.races.push(r);}Object.assign(r.picks,picks);r.scored=false;r.results={};});await updateOfficialResults(true);
+ await mutate(()=>{let r=state.races.find(r=>String(r.officialRaceId)===rid);for(const [p,d] of Object.entries(picks))if(state.races.some(x=>x.id!==r?.id&&x.phase===state.phase&&x.picks?.[p]===d))throw Error(p+' already used '+d+' this phase.');if(!r){if(info.phase&&info.phase!==state.phase)throw Error("This race belongs to the other phase");r={id:rid,officialRaceId:rid,name:info.name||info.track,date:info.date,phase:info.phase||state.phase,picks:{},scored:false,results:{}};state.races.push(r);}Object.assign(r.picks,picks);r.scored=false;r.results={};});await updateOfficialResults(true);
 };
 function normName(s){return (s||"").toLowerCase().replace(/[^a-z0-9]/g,"")}
 async function updateOfficialResults(silent=false){
  const status=$("resultsStatus"); if(!silent)status.textContent="Checking NASCAR results…";
  try{
-  const res=await fetch("./data/results.json?ts="+Date.now(),{cache:"no-store"}); if(!res.ok)throw new Error("Results feed unavailable");
+  const res=await fetch(feedPath()+"?ts="+Date.now(),{cache:"no-store"}); if(!res.ok)throw new Error("Results feed unavailable");
   const feed=await res.json(); let scored=0;
   for(const r of state.races.filter(x=>!x.scored)){
    let fr=r.officialRaceId?(feed.races||[]).find(x=>String(x.race_id)===String(r.officialRaceId)):null;
@@ -101,6 +106,7 @@ $('resetBtn').onclick=()=>{if(confirm('Erase the entire shared league? Export a 
 $("exportBtn").onclick=()=>{const b=new Blob([JSON.stringify(state,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="sunday-picks-backup.json";a.click();URL.revokeObjectURL(a.href)}
 $('importBtn').onclick=()=>$('importFile').click();$('importFile').onchange=async e=>{const f=e.target.files[0];if(!f||!commissioner())return;try{const backup=migrateDebora(JSON.parse(await f.text()));if(!Array.isArray(backup.races)||!backup.base||!['regular','chase'].includes(backup.phase))throw Error('Invalid backup');if(confirm('Replace the shared league with this backup?'))await mutate(()=>{state={...backup,revision:state.revision};});}catch(e){alert(e.message);}e.target.value='';};
 $("shareBtn").onclick=async()=>{const c=document.createElement("canvas");c.width=1080;c.height=1350;const x=c.getContext("2d");x.fillStyle="#0b1020";x.fillRect(0,0,c.width,c.height);x.fillStyle="#fff";x.font="bold 82px -apple-system";x.fillText("SUNDAY PICKS",80,135);x.fillStyle="#9ca3af";x.font="36px -apple-system";x.fillText(state.phase==="regular"?"Regular Season Standings":"The Chase Standings",80,200);standings().forEach((p,i)=>{const y=350+i*190;x.fillStyle="#182033";x.fillRect(65,y-85,950,145);x.fillStyle="#fff";x.font="bold 52px -apple-system";x.fillText((i+1)+".  "+p,105,y);x.textAlign="right";x.fillText(total(p)+" pts",965,y);x.textAlign="left";});const blob=await new Promise(r=>c.toBlob(r,"image/png"));const file=new File([blob],"sunday-picks-standings.png",{type:"image/png"});if(navigator.share&&navigator.canShare?.({files:[file]}))await navigator.share({files:[file],title:"Sunday Picks Standings"});else{const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=file.name;a.click();}}
+$("seasonSelect").value=season;
 if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));render();loadSchedule();initCloud().then(()=>{loadSchedule();setTimeout(()=>updateOfficialResults(true),800);});
 setInterval(async()=>{await refresh();await updateOfficialResults(true);},60000);
 </script></body></html>
