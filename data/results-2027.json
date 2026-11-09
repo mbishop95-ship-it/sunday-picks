@@ -1,0 +1,296 @@
+{
+  "season": 2027,
+  "series_id": 1,
+  "updated_at": null,
+  "schedule": [
+    {
+      "race_id": "2027-01",
+      "date": "2027-02-21",
+      "name": "Daytona 500",
+      "track": "Daytona International Speedway",
+      "phase": "regular",
+      "starts_at": null
+    },
+    {
+      "race_id": "2027-02",
+      "date": "2027-02-28",
+      "name": "Autotrader 400",
+      "track": "EchoPark Speedway",
+      "phase": "regular",
+      "starts_at": null
+    },
+    {
+      "race_id": "2027-03",
+      "date": "2027-03-07",
+      "name": "DuraMAX Texas Grand Prix",
+      "track": "Circuit of The Americas",
+      "phase": "regular",
+      "starts_at": null
+    },
+    {
+      "race_id": "2027-04",
+      "date": "2027-03-14",
+      "name": "Phoenix Raceway",
+      "track": "Phoenix Raceway",
+      "phase": "regular",
+      "starts_at": null
+    },
+    {
+      "race_id": "2027-05",
+      "date": "2027-03-21",
+      "name": "Las Vegas Motor Speedway",
+      "track": "Las Vegas Motor Speedway",
+      "phase": "regular",
+      "starts_at": null
+    },
+    {
+      "race_id": "2027-06",
+      "date": "2027-04-04",
+      "name": "Darlington Raceway",
+      "track": "Darlington Raceway",
+      "phase": "regular",
+      "starts_at": null
+    },
+    {
+      "race_id": "2027-07",
+      "date": "2027-04-11",
+      "name": "Bristol Motor Speedway",
+      "track": "Bristol Motor Speedway",
+      "phase": "regular",
+      "starts_at": null
+    },
+    {
+      "race_id": "2027-08",
+      "date": "2027-04-18",
+      "name": "Cook Out 400",
+      "track": "Martinsville Speedway",
+      "phase": "regular",
+      "starts_at": null
+    },
+    {
+      "race_id": "2027-09",
+      "date": "2027-04-25",
+      "name": "Jack Link's 500",
+      "track": "Talladega Superspeedway",
+      "phase": "regular",
+      "starts_at": null
+    },
+    {
+      "race_id": "2027-10",
+      "date": "2027-05-02",
+      "name": "Würth 400 presented by Liqui Moly",
+      "track": "Texas Motor Speedway",
+      "phase": "regular",
+      "starts_at": null
+    },
+    {
+      "race_id": "2027-11",
+      "date": "2027-05-09",
+      "name": "Kansas Speedway",
+      "track": "Kansas Speedway",
+      "phase": "regular",
+      "starts_at": null
+    },
+    {
+      "race_id": "2027-12",
+      "date": "2027-05-16",
+      "name": "Dover Motor Speedway",
+      "track": "Dover Motor Speedway",
+      "phase": "regular",
+      "starts_at": null
+    },
+    {
+      "race_id": "2027-13",
+      "date": "2027-05-30",
+      "name": "Coca-Cola 600",
+      "track": "Charlotte Motor Speedway",
+      "phase": "regular",
+      "starts_at": null
+    },
+    {
+      "race_id": "2027-14",
+      "date": "2027-06-06",
+      "name": "Nashville Superspeedway",
+      "track": "Nashville Superspeedway",
+      "phase": "regular",
+      "starts_at": null
+    },
+    {
+      "race_id": "2027-15",
+      "date": "2027-06-13",
+      "name": "Great American Getaway 400",
+      "track": "Pocono Raceway",
+      "phase": "regular",
+      "starts_at": null
+    },
+    {
+      "race_id": "2027-16",
+      "date": "2027-06-20",
+      "name": "Michigan International Speedway",
+      "track": "Michigan International Speedway",
+      "phase": "regular",
+      "starts_at": null
+    },
+    {
+      "race_id": "2027-17",
+      "date": "2027-06-27",
+      "name": "Chicagoland Speedway",
+      "track": "Chicagoland Speedway",
+      "phase": "regular",
+      "starts_at": null
+    },
+    {
+      "race_id": "2027-18",
+      "date": "2027-07-04",
+      "name": "Iowa Speedway",
+      "track": "Iowa Speedway",
+      "phase": "regular",
+      "starts_at": null
+    },
+    {
+      "race_id": "2027-19",
+      "date": "2027-07-11",
+      "name": "Toyota/Save Mart 350",
+      "track": "Sonoma Raceway",
+      "phase": "regular",
+      "starts_at": null
+    },
+    {
+      "race_id": "2027-20",
+      "date": "2027-07-18",
+      "name": "Dollar Tree 400",
+      "track": "EchoPark Speedway",
+      "phase": "regular",
+      "starts_at": null
+    },
+    {
+      "race_id": "2027-21",
+      "date": "2027-07-25",
+      "name": "Brickyard 400",
+      "track": "Indianapolis Motor Speedway",
+      "phase": "regular",
+      "starts_at": null
+    },
+    {
+      "race_id": "2027-22",
+      "date": "2027-08-01",
+      "name": "Naval Base Coronado",
+      "track": "Naval Base Coronado",
+      "phase": "regular",
+      "starts_at": null
+    },
+    {
+      "race_id": "2027-23",
+      "date": "2027-08-14",
+      "name": "Bass Pro Shops Night Race",
+      "track": "Bristol Motor Speedway",
+      "phase": "regular",
+      "starts_at": null
+    },
+    {
+      "race_id": "2027-24",
+      "date": "2027-08-22",
+      "name": "Enjoy Illinois 300",
+      "track": "World Wide Technology Raceway",
+      "phase": "regular",
+      "starts_at": null
+    },
+    {
+      "race_id": "2027-25",
+      "date": "2027-08-28",
+      "name": "Coke Zero Sugar 400",
+      "track": "Daytona International Speedway",
+      "phase": "regular",
+      "starts_at": null
+    },
+    {
+      "race_id": "2027-26",
+      "date": "2027-09-05",
+      "name": "Southern 500",
+      "track": "Darlington Raceway",
+      "phase": "regular",
+      "starts_at": null
+    },
+    {
+      "race_id": "2027-27",
+      "date": "2027-09-11",
+      "name": "Richmond Raceway",
+      "track": "Richmond Raceway",
+      "phase": "chase",
+      "starts_at": null
+    },
+    {
+      "race_id": "2027-28",
+      "date": "2027-09-19",
+      "name": "Watkins Glen International",
+      "track": "Watkins Glen International",
+      "phase": "chase",
+      "starts_at": null
+    },
+    {
+      "race_id": "2027-29",
+      "date": "2027-09-26",
+      "name": "New Hampshire Motor Speedway",
+      "track": "New Hampshire Motor Speedway",
+      "phase": "chase",
+      "starts_at": null
+    },
+    {
+      "race_id": "2027-30",
+      "date": "2027-10-03",
+      "name": "Kansas Speedway",
+      "track": "Kansas Speedway",
+      "phase": "chase",
+      "starts_at": null
+    },
+    {
+      "race_id": "2027-31",
+      "date": "2027-10-10",
+      "name": "Las Vegas Motor Speedway",
+      "track": "Las Vegas Motor Speedway",
+      "phase": "chase",
+      "starts_at": null
+    },
+    {
+      "race_id": "2027-32",
+      "date": "2027-10-17",
+      "name": "Charlotte Motor Speedway",
+      "track": "Charlotte Motor Speedway",
+      "phase": "chase",
+      "starts_at": null
+    },
+    {
+      "race_id": "2027-33",
+      "date": "2027-10-24",
+      "name": "Freeway Insurance 500",
+      "track": "Phoenix Raceway",
+      "phase": "chase",
+      "starts_at": null
+    },
+    {
+      "race_id": "2027-34",
+      "date": "2027-10-31",
+      "name": "YellaWood 500",
+      "track": "Talladega Superspeedway",
+      "phase": "chase",
+      "starts_at": null
+    },
+    {
+      "race_id": "2027-35",
+      "date": "2027-11-07",
+      "name": "Xfinity 500",
+      "track": "Martinsville Speedway",
+      "phase": "chase",
+      "starts_at": null
+    },
+    {
+      "race_id": "2027-36",
+      "date": "2027-11-14",
+      "name": "Homestead-Miami Speedway",
+      "track": "Homestead-Miami Speedway",
+      "phase": "chase",
+      "starts_at": null
+    }
+  ],
+  "races": []
+}
