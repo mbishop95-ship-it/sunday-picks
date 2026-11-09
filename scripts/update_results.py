@@ -1,7 +1,7 @@
-import json, urllib.request, pathlib, datetime
+import json, urllib.request, pathlib, datetime, os
 from zoneinfo import ZoneInfo
 
-YEAR=datetime.datetime.now().year
+YEAR=int(os.environ.get('NASCAR_SEASON', datetime.datetime.now().year))
 SERIES=1
 CACHE="https://cf.nascar.com/cacher"
 
@@ -31,7 +31,7 @@ for r in races:
 cup.sort(key=lambda r:r.get("race_date") or "")
 
 # Preserve the app's curated 36-race schedule. This job's purpose is final points.
-path=pathlib.Path("data/results.json")
+path=pathlib.Path(os.environ.get("NASCAR_RESULTS_PATH", f"data/results-{YEAR}.json"))
 existing=json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
 schedule=existing.get("schedule",[])
 # Keep curated race IDs/names/dates; enrich each with NASCAR's scheduled start.
